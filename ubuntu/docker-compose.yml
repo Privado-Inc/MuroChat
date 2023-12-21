@@ -1,0 +1,67 @@
+services:
+  murochat-backend:
+    image: public.ecr.aws/privado/murochat-backend:prod
+    restart: always
+    container_name: murochat-backend
+    privileged: true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    tty: true
+    env_file:
+      - .env
+    ports:
+      - 8001:8001
+    volumes:
+      - pythonenv:/code/ubuntu/install/poetry-venv
+      - applicationlogs:/var/log/uwsgi/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/:/root/.docker/
+      - .env:/home/ubuntu/install/code/private-gpt-backend/.env
+    links:
+      - mongodb
+
+  mongodb:
+    image: 'percona/percona-server-mongodb:4.4'
+    restart: always
+    container_name: mongodb
+    env_file:
+      - .env
+    command: --wiredTigerCacheSizeGB=1
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - "27028:27017"
+    ulimits:
+      nofile:
+        soft: "65536"
+        hard: "65536"
+
+  murochat-frontend:
+    image: public.ecr.aws/privado/murochat-ui:prod
+    restart: always
+    container_name: murochat-frontend
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    links:
+      - murochat-backend
+
+  watchtower:
+    image: "containrrr/watchtower:latest"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/:/.docker/
+    environment:
+      - DOCKER_CONFIG=/.docker
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_POLL_INTERVAL=600
+
+volumes:
+  mongodata:
+  pythonenv:
+  applicationlogs:
