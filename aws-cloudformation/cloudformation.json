@@ -1,4 +1,16 @@
 {
+    "Parameters": {
+     "secretsarn": {
+      "Type": "String",
+      "Default": "arn:aws:secretsmanager:ap-southeast-1:<ACCOUNT_NUMBER>:secret:<NAME>",
+      "Description": "The arn of the secrets",
+      "NoEcho": false
+     },
+     "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+     }
+    },
     "Resources": {
      "murogptvpcA5BD7541": {
       "Type": "AWS::EC2::VPC",
@@ -1013,7 +1025,13 @@
        "Cluster": {
         "Ref": "murogptcluster7F7C4D91"
        },
-       "DefaultCapacityProviderStrategy": []
+       "DefaultCapacityProviderStrategy": [
+        {
+         "CapacityProvider": {
+          "Ref": "capacityprovider3257C9FE"
+         }
+        }
+       ]
       },
       "Metadata": {
        "aws:cdk:path": "muro-chat/murogpt-Prod/murogpt-application/murogpt-cluster/murogpt-cluster"
@@ -1156,11 +1174,33 @@
          "Environment": [
           {
            "Name": "MONGO_INITDB_ROOT_USERNAME",
-           "Value": "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx:SecretString:MONGO_INITDB_ROOT_USERNAME::}}"
+           "Value": {
+            "Fn::Join": [
+             "",
+             [
+              "{{resolve:secretsmanager:",
+              {
+               "Ref": "secretsarn"
+              },
+              ":SecretString:MONGO_INITDB_ROOT_USERNAME::}}"
+             ]
+            ]
+           }
           },
           {
            "Name": "MONGO_INITDB_ROOT_PASSWORD",
-           "Value": "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx:SecretString:MONGO_INITDB_ROOT_PASSWORD::}}"
+           "Value": {
+            "Fn::Join": [
+             "",
+             [
+              "{{resolve:secretsmanager:",
+              {
+               "Ref": "secretsarn"
+              },
+              ":SecretString:MONGO_INITDB_ROOT_PASSWORD::}}"
+             ]
+            ]
+           }
           }
          ],
          "Essential": true,
@@ -1216,7 +1256,18 @@
          "Environment": [
           {
            "Name": "SECRETS",
-           "Value": "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx:SecretString:::}}"
+           "Value": {
+            "Fn::Join": [
+             "",
+             [
+              "{{resolve:secretsmanager:",
+              {
+               "Ref": "secretsarn"
+              },
+              ":SecretString:::}}"
+             ]
+            ]
+           }
           }
          ],
          "Essential": true,
@@ -1268,7 +1319,18 @@
          "Environment": [
           {
            "Name": "DOMAIN_NAME",
-           "Value": "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx:SecretString:SERVER_NAME::}}"
+           "Value": {
+            "Fn::Join": [
+             "",
+             [
+              "{{resolve:secretsmanager:",
+              {
+               "Ref": "secretsarn"
+              },
+              ":SecretString:SERVER_NAME::}}"
+             ]
+            ]
+           }
           },
           {
            "Name": "PROTOCOL",
@@ -1460,6 +1522,14 @@
      "muroserviceServiceD860206C": {
       "Type": "AWS::ECS::Service",
       "Properties": {
+       "CapacityProviderStrategy": [
+        {
+         "CapacityProvider": {
+          "Ref": "capacityprovider3257C9FE"
+         },
+         "Weight": 1
+        }
+       ],
        "Cluster": {
         "Ref": "murogptcluster7F7C4D91"
        },
@@ -1474,7 +1544,6 @@
        },
        "EnableECSManagedTags": false,
        "HealthCheckGracePeriodSeconds": 900,
-       "LaunchType": "EC2",
        "LoadBalancers": [
         {
          "ContainerName": "murochat-frontend",
@@ -1535,17 +1604,21 @@
      "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-       "Analytics": "v2:deflate64:H4sIAAAAAAAA/31TUY/aMAz+LfceOsae9sh17ITEpoqie53cYIpHmlRJyglV/e9z0vZaQNpTPn92HPuzs0q+LpfJ8gU+3EIeLwtFRdLmHuRF7NGZxkoU7PvTolwl7XstRXrS71kqsqZQJPOm0OgDN6G9aTweoFA48RO3ds5IAk9GfwYHsNlm4fgN/g08fsBNZJauDKfEW+3RMh4D+koGa+256HOF2oscZWPJ396saepYw3+JrS4tOvfEb3p6B42W5wNWtYK+1HumE6jAeZLKwLEABVqSLq+s1rquWaLY6o59r9GHNqaY2/M4ch71EDPimf8AtmQBxj5mZieg8cZJUPw6v81G3huf0U9cf/1gedrMDa7M8GNR3DuiEwRV0u5NP9Z4TqET2mrnQ1uZNSdSQR3pkjZVDTcT23qGKdQgWXW+cqUj2tmKOLF25aM/Xn3kNnJ1AHf5gSfSNG7XI2O0B2JJZxzfy9FeSfbbOsDQetjWkCA1jfbcx4n7+Mkt5TcuugrR99avENdLKtZS8u5khnTc3JnZCWVKzrQz02BGHMSyyR5r48gbe3sFx79vmv7dhKcS44vDvCam6+JgwEKFg97jj+5EdvNno798S74nq5e/jmhhuXiqMNn35z8rcQmCGAQAAA=="
+       "Analytics": "v2:deflate64:H4sIAAAAAAAA/31TTW/bMAz9Lb0rXpaednSzrAiQboZt9DowipJwkSVDHymMwP99lOVUTgL0JPLxiSIfqUX2fT7P5k/wYWd8d5pJ3GaXygE/seVeFWCgEU4YVgqrveGCEfHvRfBFdnlveeC8F0tW+K1EXvmtEi5gySq1d6KGrRQJT1hureYIDrX6JAdjtS7C8RvcKzjxAR0rDJ7JTInXisoi+0qIlYxe7qiDYyOUY5Xg3qDrXo327VDDl8BaHYyw9gFfRXgDXvFjLZpWQiz1FumZkGAdcqlhtwUJiqM6nEmtvG1JoqHVDcVehhgJG1JM/SkPrRNq5FztSbwGcyABrn1M3J6Bd9pykPQ6vU1OFZ1P9gMWr9eGRk/YGCo0PTaIewP0DKHJLqWOYx3ORE3WWlkX2iqM3qMM6nCbXZbSWxfbejSX0AIn1enKGXfCTFbEstwe7uPD1XtsxRc12NNPsUeF1+26R7RygCTpBKN7lTBn5HFbRzO0HrY1JFhqrxz1sac+flFLVUdFN4F9670FXpSU5ZzT7hQa1bC5E7dnUh8o00anwVztIJbJStFqi06b7gUs/b40/ZsJpxKHF8d5JaTvA/bHu9bHbzl+554VnTtq9e05+5Etnv5ZxJmhyrERWRnP/0MC1oQiBAAA"
       },
       "Metadata": {
        "aws:cdk:path": "muro-chat/murogpt-Prod/murogpt-application/CDKMetadata/Default"
       }
      }
     },
-    "Parameters": {
-     "SsmParameterValueawsserviceecsoptimizedamiamazonlinux2recommendedimageidC96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-      "Default": "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+    "Outputs": {
+     "HostName": {
+      "Value": {
+       "Fn::GetAtt": [
+        "murogptlbF10A5BBC",
+        "DNSName"
+       ]
+      }
      }
     }
    }
