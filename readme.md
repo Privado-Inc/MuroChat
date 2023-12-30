@@ -42,7 +42,7 @@ Above images are released from the `main` branch of respective repositoires. For
 
 This installation package provides you with an easy way to quickly install the application. Below are folders containing different sets of installation packages:
 - The `ubuntu` folder contains the scripts required to install MuroChat on Ubuntu. Check out the [readme](https://github.com/Privado-Inc/MuroChat/blob/main/ubuntu/readme.md) for more details.
-- The `aws-cloudformation` folder: *Soon, we are going to release a CloudFormation template for the AWS environment, which will install the application on AWS quickly.*
+- The `aws-cloudformation` folder contains the cloudformatiom template required to install MuroChat on AWS. Check out the [readme](https://github.com/Privado-Inc/MuroChat/blob/main/aws-cloudformation/readme.md) for more details.
 
 
 ## Product Images
