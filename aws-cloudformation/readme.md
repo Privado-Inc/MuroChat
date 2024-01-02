@@ -12,24 +12,23 @@
     - Navigate to AWS Secrets Manager in the AWS Management Console.
     - Choose `Choose secret type -> Other type of secret -> Plaintext`.
     - Paste the content of secrets.json into the secret. Ensure that you fill in the values as per your infrastructure.
-    - Once the secret is created, copy the ARN, which will look like `secretsmanager:arn:aws:secretsmanager:<REGION>:<ACCOUNT>:secret:<ID>`.
-    - Search for the existing secret ARN (`secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx`) in the CloudFormation template and replace it with your generated ARN.
+    - Once the secret is created, copy the ARN. It will be asked as an input at the time of stack creation. It is a parameterized value for the stack.
 
 #### Verify CloudFormation Template:
 - Before deploying the updated CloudFormation template, ensure the following:
     - There is no trace of the AWS account ID (`325094797840`) in the template.
     - There is no trace of the region (`ap-southeast-1`) if you are not deploying in that region.
-    - There is no trace of the original secret ARN (`secretsmanager:arn:aws:secretsmanager:ap-southeast-1:325094797840:secret:Muro/Dev-zo4WDx`).
+    - Secrets are created in the secret manager and you have arn of it.
 
 #### Deploy CloudFormation Template:
 - Upload the modified CloudFormation template using the AWS CloudFormation console.
+- During the stack creation process, you will be prompted to provide the Secret ARN. Please enter the ARN that you copied earlier.
 - The deployment process may take 5-10 minutes to create the necessary infrastructure and start the application.
 
 
 #### Access the Application:
-- Once the CloudFormation template is deployed, retrieve the domain name from the Application Load Balancer (ALB).
-- Access the application by navigating to the ALB's domain in your web browser.
-
+- After deploying the CloudFormation template, you can find the hostname in the output section of the stack, which corresponds to the Application Load Balancer (ALB)
+- Currently, it runs on HTTP, but you have the option to switch from ALB targets to use HTTPS. 
 
 #### TODOs
 - Update the CloudFormation template to make the AWS region and account ID parameterized. 
